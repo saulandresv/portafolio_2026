@@ -36,14 +36,19 @@ export const CONTENT = {
       title: "BloodPoint",
       tag: { es: "Proyecto de título · Duoc UC", en: "Capstone project · Duoc UC" },
       summary: {
-        es: "Plataforma móvil que conecta donantes de sangre con centros de salud mediante geolocalización en tiempo real y escaneo de códigos QR.",
-        en: "Mobile platform connecting blood donors with health centers via real-time geolocation and QR code scanning.",
+        es: "Plataforma móvil que conecta donantes de sangre con centros de salud mediante geolocalización en tiempo real, escaneo de QR y un sistema de logros gamificado para incentivar donaciones.",
+        en: "Mobile platform connecting blood donors with health centers via real-time geolocation, QR code scanning and a gamified achievement system to incentivize donations.",
       },
       description: {
-        es: "Proyecto de título realizado en equipo. Sistema integral de promoción y gestión de donaciones de sangre. Aplicación móvil híbrida que conecta donantes con centros de salud mediante geolocalización en tiempo real y escaneo de códigos QR. Backend en Django y PostgreSQL para la gestión de datos. Chatbot construido con OpenRouter API + DeepSeek Chat: motor de lenguaje natural entrenado para responder preguntas frecuentes sobre la donación de sangre y brindar orientación automatizada, restringido estrictamente a la información proporcionada para garantizar precisión.",
-        en: "Team capstone project. End-to-end blood-donation promotion and management platform. Hybrid mobile app connecting donors with health centers via real-time geolocation and QR scanning. Django + PostgreSQL backend. Chatbot built with OpenRouter API + DeepSeek Chat — a natural-language engine trained to answer blood-donation FAQs, strictly scoped to verified information to guarantee accuracy.",
+        es: "Proyecto de título realizado en equipo de 3 personas. Plataforma integral de gestión y promoción de donaciones de sangre con tres roles: donante, representante de centro de salud y administrador. App móvil híbrida con mapa en tiempo real de centros de donación, generación de códigos QR para registrar donaciones, notificaciones push con recordatorios, y sistema gamificado de ranking y logros para incentivar la participación. Dashboard analítico (Apache Superset) para reportes estadísticos por tipo de sangre, campaña y zona geográfica. Backend REST en Django y PostgreSQL. Chatbot construido con OpenRouter API + DeepSeek Chat, entrenado estrictamente sobre información de donación de sangre para garantizar precisión.",
+        en: "Team capstone project (3 members). End-to-end blood-donation management platform with three roles: donor, health-center representative, and administrator. Hybrid mobile app with real-time donation center map, QR code generation for donation registration, push notification reminders, and a gamified ranking and achievement system to drive participation. Apache Superset analytics dashboard for statistical reports by blood type, campaign and geographic area. Django + PostgreSQL REST backend. Chatbot powered by OpenRouter API + DeepSeek Chat, strictly scoped to blood-donation information for accuracy.",
       },
       tech: ["Ionic", "Angular", "Capacitor", "Mapbox", "Django", "PostgreSQL", "DeepSeek", "OpenRouter"],
+      images: [
+        "/images/bloodpoint/dashboard.png",
+        "/images/bloodpoint/campaign.png",
+        "/images/bloodpoint/arquitectura.png",
+      ],
       role: { es: "Trabajo en equipo", en: "Team project" },
       year: "2025",
       link: "https://github.com/saulandresv/clon-bloodpoint-app",

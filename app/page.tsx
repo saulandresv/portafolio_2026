@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, memo } from 'react'
+const IMG_BASE = process.env.NODE_ENV === 'production' ? '/portafolio_2026' : ''
 import { motion, AnimatePresence } from 'framer-motion'
 import * as I from '@/lib/icons'
 import { CONTENT as C, type Lang, type Bilingual } from '@/lib/data'
@@ -239,9 +240,7 @@ type GHRepo = {
 
 type GHUserStats = {
   publicRepos: number
-  totalStars: number
   totalCommits: number | null
-  topLangs: string[]
 }
 
 // ── ProjectPreview ────────────────────────────────────────────────────────────
@@ -301,19 +300,11 @@ const Projects = memo(function Projects({ lang, selectedId, setSelectedId }: {
     const headers = { Accept: 'application/vnd.github+json' }
     Promise.all([
       fetch(`https://api.github.com/users/${C.github}`, { headers }).then(r => r.json()),
-      fetch(`https://api.github.com/users/${C.github}/repos?per_page=100`, { headers }).then(r => r.json()),
       fetch(`https://api.github.com/search/commits?q=author:${C.github}&per_page=1`, { headers }).then(r => r.json()).catch(() => null),
-    ]).then(([user, repos, commits]) => {
-      const repoList = Array.isArray(repos) ? repos : []
-      const totalStars = repoList.reduce((s: number, r: { stargazers_count: number }) => s + (r.stargazers_count ?? 0), 0)
-      const langCount: Record<string, number> = {}
-      repoList.forEach((r: { language: string | null }) => { if (r.language) langCount[r.language] = (langCount[r.language] ?? 0) + 1 })
-      const topLangs = Object.entries(langCount).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([l]) => l)
+    ]).then(([user, commits]) => {
       setUserStats({
         publicRepos: user.public_repos ?? 0,
-        totalStars,
         totalCommits: commits?.total_count ?? null,
-        topLangs,
       })
     }).catch(() => {})
   }, [])
@@ -389,27 +380,21 @@ const Projects = memo(function Projects({ lang, selectedId, setSelectedId }: {
                       <div className="text-[10px] font-mono text-zinc-500 mb-1">{lang === 'es' ? 'Repos públicos' : 'Public repos'}</div>
                       <div className="font-display text-2xl tracking-tight">{userStats.publicRepos}</div>
                     </div>
-                    <div className="rounded-xl border border-line-2 p-3 bg-black/30">
-                      <div className="text-[10px] font-mono text-zinc-500 mb-1">★ Stars</div>
-                      <div className="font-display text-2xl tracking-tight">{userStats.totalStars}</div>
-                    </div>
+                    {userStats.totalCommits !== null && (
+                      <div className="rounded-xl border border-line-2 p-3 bg-black/30">
+                        <div className="text-[10px] font-mono text-zinc-500 mb-1">Commits</div>
+                        <div className="font-display text-2xl tracking-tight">{userStats.totalCommits.toLocaleString()}</div>
+                      </div>
+                    )}
                   </div>
-                  {userStats.totalCommits !== null && (
-                    <div className="rounded-xl border border-line-2 p-3 bg-black/30">
-                      <div className="text-[10px] font-mono text-zinc-500 mb-1">{lang === 'es' ? 'Commits totales' : 'Total commits'}</div>
-                      <div className="font-display text-2xl tracking-tight">{userStats.totalCommits.toLocaleString()}</div>
-                    </div>
-                  )}
-                  {userStats.topLangs.length > 0 && (
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {userStats.topLangs.map(l => (
-                        <div key={l} className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
-                          <span className="text-[10px] font-mono text-zinc-400">{l}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {C.skills.languages.map(l => (
+                      <div key={l} className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
+                        <span className="text-[10px] font-mono text-zinc-400">{l}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-2 animate-pulse">
@@ -462,18 +447,20 @@ const Projects = memo(function Projects({ lang, selectedId, setSelectedId }: {
                     </div>
                     <h3 className="font-display text-5xl md:text-7xl tracking-[-0.04em] leading-none mb-6">{p.title}</h3>
                     <p className="max-w-2xl text-zinc-300 text-lg leading-relaxed mb-8">{pick(p.description, lang)}</p>
+                    {'images' in p && Array.isArray(p.images) && p.images.length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+                        {(p.images as string[]).map((src, i) => (
+                          <img key={i} src={IMG_BASE + src} alt={`${p.title} screenshot ${i + 1}`}
+                            className={`w-full rounded-xl border border-line-2 object-cover${i === 0 ? ' md:col-span-2' : ''}`}
+                          />
+                        ))}
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-2 mb-8">
                       {p.tech.map(t => (
                         <span key={t} className="text-[10px] font-mono uppercase tracking-[0.22em] px-3 py-1.5 rounded-full chip bg-black/40 text-zinc-300">{t}</span>
                       ))}
                     </div>
-                    {ghRepo && (
-                      <div className="flex items-center gap-4 mb-8 text-[10px] font-mono text-zinc-500">
-                        <span>★ {ghRepo.stargazers_count} stars</span>
-                        <span>⑂ {ghRepo.forks_count} forks</span>
-                        {ghRepo.language && <span>● {ghRepo.language}</span>}
-                      </div>
-                    )}
                     <a href={p.link ?? '#'} target="_blank" rel="noreferrer"
                       className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.22em] bg-accent">
                       {lang === 'es' ? 'Ver en GitHub' : 'View on GitHub'} <I.ExternalLink size={14} />
