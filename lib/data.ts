@@ -3,7 +3,7 @@ export type Bilingual = string | { es: string; en: string }
 
 export const CONTENT = {
   name: "Saul Vega",
-  role: { es: "Software Analyst.", en: "Software Analyst." },
+  role: { es: "Full Stack Developer.", en: "Full Stack Developer." },
   subrole: { es: "Analista Programador Titulado · Duoc UC", en: "Certified Software Analyst · Duoc UC" },
   location: "Chile",
   email: "saul.vega2@gmail.com",

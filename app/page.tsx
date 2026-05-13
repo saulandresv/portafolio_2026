@@ -139,9 +139,9 @@ const Hero = memo(function Hero({ lang }: { lang: Lang }) {
         </motion.div>
 
         <h1 className="font-display tracking-[-0.05em] leading-[0.85]">
-          <div className="text-[clamp(2.4rem,9vw,8.5rem)]"><KineticText text="Software" /></div>
+          <div className="text-[clamp(2.4rem,9vw,8.5rem)]"><KineticText text="Full Stack" /></div>
           <div className="text-[clamp(2.4rem,9vw,8.5rem)] -mt-1">
-            <span className="font-serif italic text-zinc-400"><KineticText text="Analyst." delay={0.25} /></span>
+            <span className="font-serif italic text-zinc-400"><KineticText text="Developer." delay={0.25} /></span>
           </div>
         </h1>
 
