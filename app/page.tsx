@@ -237,6 +237,13 @@ type GHRepo = {
   open_issues_count: number
 }
 
+type GHUserStats = {
+  publicRepos: number
+  totalStars: number
+  totalCommits: number | null
+  topLangs: string[]
+}
+
 // ── ProjectPreview ────────────────────────────────────────────────────────────
 
 const ProjectPreview = memo(function ProjectPreview({ project }: { project: typeof C.projects[0] }) {
@@ -280,6 +287,7 @@ const Projects = memo(function Projects({ lang, selectedId, setSelectedId }: {
   const featured = C.projects.find(p => p.featured) ?? C.projects[0]
   const repoPath = featured.link?.replace('https://github.com/', '') ?? ''
   const [ghRepo, setGhRepo] = useState<GHRepo | null>(null)
+  const [userStats, setUserStats] = useState<GHUserStats | null>(null)
 
   useEffect(() => {
     if (!repoPath) return
@@ -288,6 +296,27 @@ const Projects = memo(function Projects({ lang, selectedId, setSelectedId }: {
       .then((d: GHRepo) => setGhRepo(d))
       .catch(() => {})
   }, [repoPath])
+
+  useEffect(() => {
+    const headers = { Accept: 'application/vnd.github+json' }
+    Promise.all([
+      fetch(`https://api.github.com/users/${C.github}`, { headers }).then(r => r.json()),
+      fetch(`https://api.github.com/users/${C.github}/repos?per_page=100`, { headers }).then(r => r.json()),
+      fetch(`https://api.github.com/search/commits?q=author:${C.github}&per_page=1`, { headers }).then(r => r.json()).catch(() => null),
+    ]).then(([user, repos, commits]) => {
+      const repoList = Array.isArray(repos) ? repos : []
+      const totalStars = repoList.reduce((s: number, r: { stargazers_count: number }) => s + (r.stargazers_count ?? 0), 0)
+      const langCount: Record<string, number> = {}
+      repoList.forEach((r: { language: string | null }) => { if (r.language) langCount[r.language] = (langCount[r.language] ?? 0) + 1 })
+      const topLangs = Object.entries(langCount).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([l]) => l)
+      setUserStats({
+        publicRepos: user.public_repos ?? 0,
+        totalStars,
+        totalCommits: commits?.total_count ?? null,
+        topLangs,
+      })
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (selectedId === null) return
@@ -347,33 +376,38 @@ const Projects = memo(function Projects({ lang, selectedId, setSelectedId }: {
           </div>
 
           <div className="lg:col-span-4 grid gap-4">
-            {/* GitHub live stats */}
+            {/* GitHub user stats */}
             <ShineCard className="relative h-[222px] md:h-[262px] rounded-[1.5rem] border border-line-2 overflow-hidden p-6 bg-[#0e0e10]">
               <div className="flex items-center gap-2 mb-4">
                 <I.Github size={14} className="text-zinc-400" />
-                <span className="text-[10px] font-mono uppercase tracking-[0.24em] text-zinc-500">GitHub · {repoPath}</span>
+                <span className="text-[10px] font-mono uppercase tracking-[0.24em] text-zinc-500">GitHub · {C.github}</span>
               </div>
-              {ghRepo ? (
+              {userStats ? (
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-line-2 p-3 bg-black/30">
-                      <div className="text-[10px] font-mono text-zinc-500 mb-1">★ Stars</div>
-                      <div className="font-display text-2xl tracking-tight">{ghRepo.stargazers_count}</div>
+                      <div className="text-[10px] font-mono text-zinc-500 mb-1">{lang === 'es' ? 'Repos públicos' : 'Public repos'}</div>
+                      <div className="font-display text-2xl tracking-tight">{userStats.publicRepos}</div>
                     </div>
                     <div className="rounded-xl border border-line-2 p-3 bg-black/30">
-                      <div className="text-[10px] font-mono text-zinc-500 mb-1">⑂ Forks</div>
-                      <div className="font-display text-2xl tracking-tight">{ghRepo.forks_count}</div>
+                      <div className="text-[10px] font-mono text-zinc-500 mb-1">★ Stars</div>
+                      <div className="font-display text-2xl tracking-tight">{userStats.totalStars}</div>
                     </div>
                   </div>
-                  {ghRepo.language && (
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)' }} />
-                      <span className="text-[10px] font-mono text-zinc-400">{ghRepo.language}</span>
+                  {userStats.totalCommits !== null && (
+                    <div className="rounded-xl border border-line-2 p-3 bg-black/30">
+                      <div className="text-[10px] font-mono text-zinc-500 mb-1">{lang === 'es' ? 'Commits totales' : 'Total commits'}</div>
+                      <div className="font-display text-2xl tracking-tight">{userStats.totalCommits.toLocaleString()}</div>
                     </div>
                   )}
-                  {updatedAgo && (
-                    <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
-                      <I.Clock size={10} /> {lang === 'es' ? `Actualizado ${updatedAgo}` : `Updated ${updatedAgo}`}
+                  {userStats.topLangs.length > 0 && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {userStats.topLangs.map(l => (
+                        <div key={l} className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
+                          <span className="text-[10px] font-mono text-zinc-400">{l}</span>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
