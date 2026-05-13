@@ -90,7 +90,8 @@ export const CONTENT = {
     { name: "Notion",  category: { es: "Productividad",  en: "Productivity"} },
     { name: "n8n",     category: { es: "Automatización", en: "Automation"  } },
     { name: "Vercel",  category: { es: "Deploy",         en: "Deploy"      } },
-    { name: "Copilot", category: { es: "IA",             en: "AI"          } },
+    { name: "Claude · Gemini",   category: { es: "IA productividad", en: "AI productivity" } },
+    { name: "Ollama · APIs LLM", category: { es: "IA integración",  en: "AI integration"  } },
     { name: "Canva",   category: { es: "Diseño",         en: "Design"      } },
   ],
 
